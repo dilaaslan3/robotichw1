@@ -1,5 +1,4 @@
 from random import random, randint
-import numpy as np
 import pygame, sys
 from robot import Robot
 
@@ -28,8 +27,11 @@ TileColor = {
 }
 
 
-r1 =Robot(randint(0,14), randint(0,14))
-r2 = Robot(randint(0,14), randint(0,14))
+""" Generate randomly position in the map """
+
+r1 =Robot(randint(0,14), randint(0,14),"Robot 1")
+r2 = Robot(randint(0,14), randint(0,14),"Robot 2")
+
 
 
 
@@ -52,37 +54,65 @@ map = [[W, N, N, N, N, N, N, N, W, N, N, W, N, N, N],  # 15X15
        [N, N, N, W, N, N, N, W, N, N, N, W, N, N, N]]
 
 
+
+
 """ Creating Map-Size """
+
 TILESIZE = 40
 MAPWIDTH = 15
 MAPHEIGHT = 15
+
+
+
+
+""" Finding Food Cells"""
+
+numFoodCells = 0
+for row in range(MAPHEIGHT):
+    for column in range(MAPWIDTH):
+        if map[row][column] == F:
+            numFoodCells += 1
+
+
+
 
 """ Create Display """
 
 pygame.init()
 DISPLAY = pygame.display.set_mode((MAPWIDTH * TILESIZE, MAPHEIGHT * TILESIZE))
 
-"""User Interface"""
+
+"""---------------------------------------------------------Methods-----------------------------------------------------"""
+
+
+
+""" Eating Food """
 
 def eat(robot):
     if map[robot.row][robot.column] == F:
         map[robot.row][robot.column] =N
         robot.score += 5
-        print ("New Score is: ", Robot , robot.score)
+        print ("New Score of", robot.name ,"is: ",  robot.score)
+        global numFoodCells
+        numFoodCells -= 1
 
+
+
+""" Algorithm of the robots """
 
 def randomMove(robot):
-    rndmMove= randint(5,8)
-    if rndmMove == 5:
+    randomMoves= randint(5,8)
+    if randomMoves == 5:
         up(robot)
-    elif rndmMove == 6:
+    elif randomMoves == 6:
         down(robot)
-    elif rndmMove == 7:
+    elif randomMoves == 7:
         right(robot)
     else:
         left(robot)
 
-""" MOVE """
+
+""" ROBOT MOVE """
 
 def up(robot):
     if robot.row!=0 and map[robot.row-1][robot.column]!=W:
@@ -104,17 +134,26 @@ def right(robot):
         robot.column += 1
 
 
+""" MAIN """
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
+#when the food is all taken the simulation is ended.
+    if numFoodCells == 0:
+        pygame.quit()
+        sys.exit()
+
 
     randomMove(r1)
     randomMove(r2)
     eat(r1)
     eat(r2)
+
 
     for row in range(MAPHEIGHT):
         for column in range(MAPWIDTH):
@@ -123,7 +162,6 @@ while True:
 
     pygame.draw.rect(DISPLAY, PINK, (r1.column * TILESIZE, r1.row * TILESIZE, TILESIZE, TILESIZE))
     pygame.draw.rect(DISPLAY, BLUE, (r2.column * TILESIZE, r2.row * TILESIZE, TILESIZE, TILESIZE))
-
 
 
 
